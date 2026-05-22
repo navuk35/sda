@@ -7,12 +7,19 @@ The boot sequence transforms a generic agent binary into a domain-specific agent
 ## Steps
 
 ```
+STEP 0: Decrypt and validate API key
+        encryptedKey = process.env.SDA_API_KEY_ENCRYPTED
+        encryptionKey = process.env.SDA_ENCRYPTION_KEY
+        apiKey = decrypt(encryptedKey, encryptionKey)
+        GET {backendUrl}/api/v1/auth/validate  [Authorization: Bearer {apiKey}]
+        If invalid --> log error, exit immediately
+
 STEP 1: Read parameters
         agentType = process.env.AGENT_TYPE || process.argv[2]
         backendUrl = process.env.BACKEND_URL
 
-STEP 2: Fetch catalog
-        GET {backendUrl}/api/v1/catalog/{agentType}
+STEP 2: Fetch catalog (authenticated)
+        GET {backendUrl}/api/v1/catalog/{agentType}  [Authorization: Bearer {apiKey}]
         Response: { skills[], resources[], repos[], mcpServers[] }
 
 STEP 3: Write skills to filesystem
@@ -40,7 +47,12 @@ STEP 7: Subscribe to updates via SurrealDB LIVE queries
           - CREATE/UPDATE -> fetch new version, replace file
           - DELETE         -> delete file from filesystem
 
-STEP 8: Agent is ready
+STEP 8: Connect session store
+        Connect to SurrealDB for session streaming
+        Load existing session if user reconnects (SELECT * FROM turn WHERE session = {id})
+        Stream all new conversation turns to SurrealDB in real-time
+
+STEP 9: Agent is ready
         Start serving via Claude Agent SDK query()
 ```
 

@@ -159,9 +159,34 @@ Every piece of content falls into one of two categories:
 | "Does this describe HOW the agent should BEHAVE?" | Skill (.claude/skills/) | "When debugging, always check policy order first..." |
 | Contains both? | Split the file | Facts -> resource, Instructions -> skill |
 
+## Session Streaming
+
+Agent conversation state is streamed to SurrealDB in real-time, making agents truly stateless and disposable:
+
+- Every conversation turn (user message, assistant response, tool call) is persisted to SurrealDB
+- On agent restart or failover, sessions are loaded from SurrealDB -- user continues where they left off
+- No sticky sessions needed -- any agent instance can serve any user
+- SurrealDB becomes the single source of truth for: skills, resources, catalogs, **and sessions**
+
+See [session-streaming.md](session-streaming.md) for detailed schema, flows, and lifecycle.
+
+## Authentication
+
+API key-based authentication secures all agent-to-backend communication:
+
+- Customers receive an API key with their subscription
+- Key is stored encrypted in Docker environment variables
+- Agent decrypts at startup, validates against backend before booting
+- Backend middleware enforces: key validity, subscription status, agent type permissions, concurrent agent limits
+- All communication over HTTPS (TLS 1.3)
+
+See [authentication.md](authentication.md) for middleware implementation, key rotation, and Docker setup.
+
 ## Security Considerations
 
-- Backend API should require authentication (API key, OAuth)
+- **Authentication**: API key per subscription, validated by middleware on every request (see [authentication.md](authentication.md))
+- **Transport**: All communication over HTTPS/WSS (TLS 1.3)
+- **Key storage**: Encrypted in Docker env vars, plaintext only in process memory
 - Git repos should use deploy keys or tokens (not personal credentials)
 - MCP servers should use scoped credentials
 - Agent containers should have network policies (only access backend + MCP endpoints)

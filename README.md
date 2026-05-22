@@ -113,15 +113,24 @@ When skills or resources are updated (via Admin Portal or API):
 
 No custom WebSocket server needed -- SurrealDB's built-in LIVE queries handle real-time push natively.
 
-### 5. Truly Stateless (Cattle, Not Pets)
-Kill an agent, spin a new one with the same `--type` parameter -- identical agent in seconds. Nothing is baked in. Everything is loaded on boot.
+### 5. Session Streaming to SurrealDB
+Conversation history is streamed to SurrealDB in real-time. Agents hold no session state locally. On restart or failover, sessions are loaded from the database. This enables horizontal scaling without sticky sessions -- any agent instance can serve any user.
+
+### 6. API Key Authentication
+Every agent authenticates with the backend using an encrypted API key. Keys are tied to subscriptions, stored encrypted in Docker env vars, decrypted only in memory at startup, and validated by backend middleware before any data is served.
+
+### 7. Truly Stateless (Cattle, Not Pets)
+Kill an agent, spin a new one with the same `--type` parameter -- identical agent in seconds. Nothing is baked in. Skills, resources, and sessions are all in SurrealDB. The agent is fully disposable.
 
 ## Boot Sequence
 
 ```
+0. Agent decrypts API key from env var, validates against backend
+   If invalid --> exit immediately
+
 1. Agent starts with: --type=pricing-bot
 
-2. GET /catalog/pricing-bot
+2. GET /catalog/pricing-bot  [Authorization: Bearer {apiKey}]
    Returns:
    {
      "skills": [
@@ -140,8 +149,9 @@ Kill an agent, spin a new one with the same `--type` parameter -- identical agen
 3. For each skill: GET /content/{uri} --> write to .claude/skills/
 4. For each resource: GET /content/{uri} --> write to docs/
 5. For each repo: git clone --> /workspace/src/
-6. Subscribe to WebSocket: /notifications/pricing-bot
-7. Agent is ready.
+6. Subscribe to SurrealDB LIVE queries for updates
+7. Connect session store (stream conversation to SurrealDB)
+8. Agent is ready.
 ```
 
 ## When to Use SDA
@@ -170,6 +180,8 @@ Kill an agent, spin a new one with the same `--type` parameter -- identical agen
 | Agent Runtime | Claude Agent SDK (TypeScript) |
 | Backend API | Spring Boot / Express / any REST framework |
 | Storage | SurrealDB (multi-model DB with LIVE queries) |
+| Session Store | SurrealDB (conversation streaming + recovery) |
+| Authentication | API key per subscription, middleware-validated |
 | Real-time Updates | SurrealDB LIVE queries (no custom WebSocket) |
 | Admin Portal | Web UI for skill/resource management |
 | Third-party MCPs | Jira, Slack, GitHub, SigNoz (plug-and-play) |
@@ -185,7 +197,9 @@ sda/
 │   ├── architecture.md                # Detailed architecture docs
 │   ├── boot-sequence.md               # Agent boot lifecycle
 │   ├── skill-vs-resource.md           # How to classify content
-│   └── hot-reload.md                  # Update notification flow
+│   ├── hot-reload.md                  # Update notification flow
+│   ├── session-streaming.md           # Stateful sessions via SurrealDB
+│   └── authentication.md             # API key security & subscription
 ├── examples/
 │   ├── backend-api/                   # Reference backend implementation
 │   │   ├── src/

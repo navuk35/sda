@@ -186,6 +186,7 @@ Kill an agent, spin a new one with the same `--type` parameter -- identical agen
 | Session Store | SurrealDB (conversation streaming + recovery) |
 | Authentication | API key per subscription, middleware-validated |
 | Guardrails | Guardrails AI server (input/output validation) |
+| Observability | OpenTelemetry (built into Agent SDK, zero code) |
 | Real-time Updates | SurrealDB LIVE queries (no custom WebSocket) |
 | Admin Portal | Web UI for skill/resource management |
 | Third-party MCPs | Jira, Slack, GitHub, SigNoz (plug-and-play) |
@@ -204,7 +205,8 @@ sda/
 │   ├── hot-reload.md                  # Update notification flow
 │   ├── session-streaming.md           # Stateful sessions via SurrealDB
 │   ├── authentication.md             # API key security & subscription
-│   └── guardrails.md                 # Input/output safety with Guardrails AI
+│   ├── guardrails.md                 # Input/output safety with Guardrails AI
+│   └── observability.md              # OpenTelemetry tracing (zero code)
 ├── examples/
 │   ├── backend-api/                   # Reference backend implementation
 │   │   ├── src/

@@ -159,6 +159,18 @@ Every piece of content falls into one of two categories:
 | "Does this describe HOW the agent should BEHAVE?" | Skill (.claude/skills/) | "When debugging, always check policy order first..." |
 | Contains both? | Split the file | Facts -> resource, Instructions -> skill |
 
+## Guardrails (Input/Output Safety)
+
+All user messages and agent responses pass through [Guardrails AI](https://guardrailsai.com/) validators running in the backend layer:
+
+- **Input guards**: prompt injection detection, toxic language, PII detection, unusual prompt patterns
+- **Output guards**: PII redaction, secrets detection, toxic content, topic restriction, XSS sanitization
+- Guardrails runs as a **standalone server** -- language-agnostic, any backend can call it via REST
+- Guard configurations are **per agent type** -- stored in SurrealDB, selectable by `agentType`
+- Agent remains a dumb shell -- all safety logic lives in the backend
+
+See [guardrails.md](guardrails.md) for validators, server setup, and Docker configuration.
+
 ## Session Streaming
 
 Agent conversation state is streamed to SurrealDB in real-time, making agents truly stateless and disposable:

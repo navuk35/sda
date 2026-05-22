@@ -119,7 +119,10 @@ Conversation history is streamed to SurrealDB in real-time. Agents hold no sessi
 ### 6. API Key Authentication
 Every agent authenticates with the backend using an encrypted API key. Keys are tied to subscriptions, stored encrypted in Docker env vars, decrypted only in memory at startup, and validated by backend middleware before any data is served.
 
-### 7. Truly Stateless (Cattle, Not Pets)
+### 8. Guardrails (Input/Output Safety)
+All user messages pass through input guards (prompt injection, toxicity, PII) and all agent responses pass through output guards (PII redaction, secrets detection, topic restriction) before reaching the user. Guardrails AI runs as a standalone server in the backend layer -- agents don't need any safety code. Guard configs are per agent type, stored in SurrealDB.
+
+### 9. Truly Stateless (Cattle, Not Pets)
 Kill an agent, spin a new one with the same `--type` parameter -- identical agent in seconds. Nothing is baked in. Skills, resources, and sessions are all in SurrealDB. The agent is fully disposable.
 
 ## Boot Sequence
@@ -182,6 +185,7 @@ Kill an agent, spin a new one with the same `--type` parameter -- identical agen
 | Storage | SurrealDB (multi-model DB with LIVE queries) |
 | Session Store | SurrealDB (conversation streaming + recovery) |
 | Authentication | API key per subscription, middleware-validated |
+| Guardrails | Guardrails AI server (input/output validation) |
 | Real-time Updates | SurrealDB LIVE queries (no custom WebSocket) |
 | Admin Portal | Web UI for skill/resource management |
 | Third-party MCPs | Jira, Slack, GitHub, SigNoz (plug-and-play) |
@@ -199,7 +203,8 @@ sda/
 │   ├── skill-vs-resource.md           # How to classify content
 │   ├── hot-reload.md                  # Update notification flow
 │   ├── session-streaming.md           # Stateful sessions via SurrealDB
-│   └── authentication.md             # API key security & subscription
+│   ├── authentication.md             # API key security & subscription
+│   └── guardrails.md                 # Input/output safety with Guardrails AI
 ├── examples/
 │   ├── backend-api/                   # Reference backend implementation
 │   │   ├── src/

@@ -37,7 +37,7 @@ const API_KEY = process.env.SDA_API_KEY || "sk_test_sda_integration_2026";
 const AGENT_TYPE = "pricing-bot";
 const WORKSPACE_DIR = `/tmp/sda-test-${randomUUID().slice(0, 8)}`;
 
-const SURREAL_URL = "http://localhost:8000/rpc";
+const SURREAL_URL = "ws://localhost:8000/rpc";
 const SURREAL_USER = "root";
 const SURREAL_PASS = "root";
 

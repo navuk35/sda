@@ -8,7 +8,7 @@ let db: Surreal;
 
 export async function connectDb(): Promise<Surreal> {
   db = new Surreal();
-  await db.connect(process.env.SURREAL_URL || "http://localhost:8000/rpc");
+  await db.connect(process.env.SURREAL_URL || "ws://localhost:8000/rpc");
   await db.signin({
     username: process.env.SURREAL_USER || "root",
     password: process.env.SURREAL_PASS || "root",

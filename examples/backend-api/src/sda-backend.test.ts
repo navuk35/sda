@@ -9,7 +9,7 @@
 
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { Hono } from "hono";
-import { Surreal } from "surrealdb";
+import { Surreal, Table } from "surrealdb";
 import { connectDb } from "./db.js";
 import { createHash } from "node:crypto";
 import { catalogRoute } from "./catalog.js";
@@ -18,7 +18,7 @@ import { authRoute, authMiddleware } from "./auth.js";
 
 // ─── Setup ──────────────────────────────────────────────────
 
-const SURREAL_URL = process.env.SURREAL_URL || "http://localhost:8000/rpc";
+const SURREAL_URL = process.env.SURREAL_URL || "ws://localhost:8000/rpc";
 const SURREAL_USER = process.env.SURREAL_USER || "root";
 const SURREAL_PASS = process.env.SURREAL_PASS || "root";
 

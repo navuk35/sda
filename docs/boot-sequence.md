@@ -25,7 +25,7 @@ STEP 2: Fetch catalog (authenticated)
 STEP 3: Write skills to filesystem
         For each skill in catalog.skills:
           GET {backendUrl}/api/v1/content/{skill.uri}
-          Write to: /workspace/.claude/skills/{name}.md
+          Write to: /workspace/.pi/skills/{name}.md
 
 STEP 4: Write resources to filesystem
         For each resource in catalog.resources:
@@ -61,7 +61,7 @@ STEP 9: Agent is ready
 
 ```
 /workspace/
-├── .claude/
+├── .pi/
 │   └── skills/
 │       ├── debug-pricing.md        # Loaded from backend
 │       └── analyze-issues.md       # Loaded from backend

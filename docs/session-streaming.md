@@ -10,7 +10,7 @@ Claude Agent SDK stores conversation history in local JSONL files. This ties ses
 WITHOUT session streaming:
 
   Agent Instance A (container)
-  ├── /workspace/.claude/sessions/
+  ├── /workspace/.pi/sessions/
   │   ├── session_abc.jsonl    <-- trapped inside container
   │   └── session_def.jsonl    <-- trapped inside container
   │

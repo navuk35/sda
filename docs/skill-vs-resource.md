@@ -7,7 +7,7 @@ For every piece of domain content, ask two questions:
 | Question | If YES | Destination |
 |----------|--------|-------------|
 | Does this describe **WHAT** something IS? | Resource | `/workspace/docs/` |
-| Does this describe **HOW** the agent should BEHAVE? | Skill | `/workspace/.claude/skills/` |
+| Does this describe **HOW** the agent should BEHAVE? | Skill | `/workspace/.pi/skills/` |
 | Contains both? | Split the file | Facts -> resource, Instructions -> skill |
 
 ## Examples
@@ -53,11 +53,11 @@ Settlement: real-time or batched.
 
 Split into:
 - `docs/pricing/commission.md` (the "What" section)
-- `.claude/skills/investigate-commission.md` (the "How" section)
+- `.pi/skills/investigate-commission.md` (the "How" section)
 
 ## Migration Checklist
 
-When converting an existing `.claude/skills/` folder (mixed content):
+When converting an existing `.pi/skills/` folder (mixed content):
 
 ```
 For each file:
@@ -65,10 +65,10 @@ For each file:
   │     -> Move to docs/ (becomes a resource)
   │
   ├── Pure behavior instructions?
-  │     -> Keep in .claude/skills/ (stays a skill)
+  │     -> Keep in .pi/skills/ (stays a skill)
   │
   └── Mixed?
         -> Split into two files
         -> Facts -> docs/
-        -> Instructions -> .claude/skills/
+        -> Instructions -> .pi/skills/
 ```

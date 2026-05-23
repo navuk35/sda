@@ -67,7 +67,7 @@ The agent itself contains zero domain knowledge. On boot, it calls a backend API
     │ Different param  │  │ Different param  │  │ Different param  │
     │                  │  │                  │  │                  │
     │ ┌──────────────┐ │  │ ┌──────────────┐ │  │ ┌──────────────┐ │
-    │ │.claude/skills│ │  │ │.claude/skills│ │  │ │.claude/skills│ │
+    │ │.pi/skills    │ │  │ │.pi/skills    │ │  │ │.pi/skills    │ │
     │ │  (loaded)    │ │  │ │  (loaded)    │ │  │ │  (loaded)    │ │
     │ │docs/ (loaded)│ │  │ │docs/ (loaded)│ │  │ │docs/ (loaded)│ │
     │ │src/ (cloned) │ │  │ │src/ (cloned) │ │  │ │src/ (cloned) │ │
@@ -149,7 +149,7 @@ Kill an agent, spin a new one with the same `--type` parameter -- identical agen
      ]
    }
 
-3. For each skill: GET /content/{uri} --> write to .claude/skills/
+3. For each skill: GET /content/{uri} --> write to .pi/skills/
 4. For each resource: GET /content/{uri} --> write to docs/
 5. For each repo: git clone --> /workspace/src/
 6. Subscribe to SurrealDB LIVE queries for updates

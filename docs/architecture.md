@@ -116,7 +116,7 @@ No custom MCP server is built for domain knowledge. Domain docs live in the back
 ```
 Agent --type=X --> Backend GET /catalog/X --> skills[], resources[], repos[]
                                           |
-                    For each skill:  GET /content/{uri} --> write to .claude/skills/
+                    For each skill:  GET /content/{uri} --> write to .pi/skills/
                     For each resource: GET /content/{uri} --> write to docs/
                     For each repo: git clone --> /workspace/src/
                     For each MCP: connect
@@ -156,7 +156,7 @@ Every piece of content falls into one of two categories:
 | Ask This | If YES | Example |
 |----------|--------|---------|
 | "Does this describe WHAT something IS?" | Resource (docs/) | "Service charge is a fee charged to users..." |
-| "Does this describe HOW the agent should BEHAVE?" | Skill (.claude/skills/) | "When debugging, always check policy order first..." |
+| "Does this describe HOW the agent should BEHAVE?" | Skill (.pi/skills/) | "When debugging, always check policy order first..." |
 | Contains both? | Split the file | Facts -> resource, Instructions -> skill |
 
 ## Guardrails (Input/Output Safety)

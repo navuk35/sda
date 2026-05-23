@@ -36,8 +36,8 @@ LIVE SELECT * FROM resource WHERE agent_type = 'pricing-bot';
 
 4. Each subscribed agent:
    a. Receives the change notification with full content
-   b. Deletes old file: /workspace/.claude/skills/debug-pricing.md
-   c. Writes new file: /workspace/.claude/skills/debug-pricing.md (v3.1)
+   b. Deletes old file: /workspace/.pi/skills/debug-pricing.md
+   c. Writes new file: /workspace/.pi/skills/debug-pricing.md (v3.1)
 
 5. Next user query uses the updated skill
 ```

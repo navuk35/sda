@@ -2,7 +2,7 @@
 
 ## Overview
 
-Claude Agent SDK has **built-in OpenTelemetry instrumentation**. No code changes needed -- just set environment variables in the agent's Docker container and traces, metrics, and logs are exported automatically.
+Pi Agent SDK has **built-in OpenTelemetry instrumentation**. No code changes needed -- just set environment variables in the agent's Docker container and traces, metrics, and logs are exported automatically.
 
 ## Enable via Environment Variables
 
@@ -30,7 +30,7 @@ OTEL_RESOURCE_ATTRIBUTES="service.version=1.0,deployment.environment=production"
 
 ```
 claude_code.interaction              (one agent turn)
-  ├── claude_code.llm_request        (each Claude API call)
+  ├── claude_code.llm_request        (each LLM API call)
   │     → model, tokens, latency, cache hits, stop reason
   ├── claude_code.tool               (each tool invocation)
   │     ├── .blocked_on_user         (permission wait time)

@@ -4,7 +4,7 @@
  * Transforms a generic agent binary into a domain-specific agent:
  *   0. Validate API key with backend
  *   1. Fetch catalog for agentType
- *   2. Write skills to .claude/skills/
+ *   2. Write skills to .pi/skills/
  *   3. Write resources to docs/
  *   4. Clone repositories to src/
  *   5. Return catalog for session creation
@@ -53,7 +53,7 @@ function ensureDir(dir: string): void {
 
 /**
  * Write a skill fetched from the backend to the local filesystem.
- * Skills go to .claude/skills/ — the standard Claude Code / Pi location.
+ * Skills go to .pi/skills/ — the standard Pi coding agent location.
  */
 async function writeSkill(
   backendUrl: string,
@@ -114,10 +114,15 @@ function cloneRepo(
 
   const branch = repo.branch || "main";
   console.log(`  ↓ repo: ${name} (${branch})`);
-  execSync(
-    `git clone --depth 1 --branch "${branch}" "${repo.url}" "${targetDir}"`,
-    { stdio: "pipe", timeout: 60_000 },
-  );
+  try {
+    execSync(
+      `git clone --depth 1 --branch "${branch}" "${repo.url}" "${targetDir}"`,
+      { stdio: "pipe", timeout: 60_000 },
+    );
+  } catch (err) {
+    const msg = err instanceof Error ? err.message.slice(0, 100) : String(err);
+    console.log(`  ⚠ repo: ${name} — clone failed, continuing (${msg})`);
+  }
 }
 
 /**
@@ -148,7 +153,7 @@ export async function boot(options: BootOptions): Promise<BootResult> {
   );
 
   // Step 2: Write skills
-  const skillsDir = join(workspaceDir, ".claude", "skills");
+  const skillsDir = join(workspaceDir, ".pi", "skills");
   ensureDir(skillsDir);
   console.log(`[SDA] Writing skills...`);
   for (const skill of catalog.skills) {

@@ -45,10 +45,4 @@ DEFINE FIELD OVERWRITE status ON session TYPE string;
 DEFINE FIELD OVERWRITE created_at ON session TYPE datetime;
 DEFINE FIELD OVERWRITE updated_at ON session TYPE datetime;
 
-DEFINE TABLE OVERWRITE turn SCHEMAFULL;
-DEFINE FIELD OVERWRITE session ON turn TYPE record<session>;
-DEFINE FIELD OVERWRITE sequence ON turn TYPE int;
-DEFINE FIELD OVERWRITE role ON turn TYPE string;
-DEFINE FIELD OVERWRITE content ON turn TYPE string;
-DEFINE FIELD OVERWRITE tokens_used ON turn TYPE option<int>;
-DEFINE FIELD OVERWRITE timestamp ON turn TYPE datetime;
+DEFINE TABLE OVERWRITE turn SCHEMALESS;

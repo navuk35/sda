@@ -32,7 +32,7 @@ import { getModel } from "@mariozechner/pi-ai";
 const AGENT_TYPE = process.env.AGENT_TYPE || "pricing-bot";
 const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:3000";
 const API_KEY = process.env.SDA_API_KEY || "";
-const SURREAL_URL = process.env.SURREAL_URL || "http://localhost:8000/rpc";
+const SURREAL_URL = process.env.SURREAL_URL || "ws://localhost:8000/rpc";
 const SURREAL_USER = process.env.SURREAL_USER || "root";
 const SURREAL_PASS = process.env.SURREAL_PASS || "root";
 const SURREAL_NS = process.env.SURREAL_NS || "sda";
@@ -94,7 +94,7 @@ async function main() {
   // ── Step 7: Create Pi agent session with SDK
   console.log(`[SDA] Creating agent session with Pi SDK...`);
 
-  // Resource loader — discovers skills from .claude/skills/ and docs/
+  // Resource loader — discovers skills from .pi/skills/ and docs/
   const resourceLoader = new DefaultResourceLoader({
     cwd: WORKSPACE_DIR,
     agentDir: `${WORKSPACE_DIR}/.pi-agent`,
@@ -108,8 +108,8 @@ async function main() {
     `[SDA] Loaded: ${Array.isArray(skills) ? skills.length : skills.skills.length} skills, ${extensions.extensions.length} extensions`,
   );
 
-  // Resolve model — default from environment or settings
-  const model = getModel("deepseek", "deepseek-v4-pro") || undefined;
+  // Resolve model — DeepSeek V4 Flash for cost efficiency ($0.14/$0.28 per M tokens)
+  const model = getModel("deepseek", "deepseek-v4-flash") || undefined;
 
   // Create session
   const { session } = await createAgentSession({
@@ -217,11 +217,11 @@ function buildSystemPrompt(agentType: string): string {
 
 Your knowledge, skills, and codebase are loaded from the backend.
 Use the read tool to explore docs/ for domain knowledge.
-Use grep and read to search .claude/skills/ for behavioral instructions.
+Use grep and read to search .pi/skills/ for behavioral instructions.
 Use bash to interact with the codebase in src/.
 
 Be thorough. Cite sources from docs/ when answering domain questions.
-When debugging, follow the skill instructions in .claude/skills/.
+When debugging, follow the skill instructions in .pi/skills/.
 Never modify production configs without explicit user approval.`;
 }
 

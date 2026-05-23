@@ -62,7 +62,7 @@ export class SessionStore {
 
   async recordTurn(turn: Omit<TurnRecord, "session_id" | "agent_type" | "sequence" | "timestamp">): Promise<void> {
     this.sequence++;
-    await db.query(
+    await this.db.query(
       "CREATE turn CONTENT { session: type::record('session', $sid), session_id: $sid, agent_type: $type, sequence: $seq, role: $role, content: $content, tokens_used: $tokens, timestamp: time::now() }",
       {
         sid: this.sessionId,
@@ -74,13 +74,13 @@ export class SessionStore {
       },
     );
 
-    await db.query("UPDATE session SET updated_at = time::now() WHERE session_id = $id", {
+    await this.db.query("UPDATE session SET updated_at = time::now() WHERE session_id = $id", {
       id: this.sessionId,
     });
   }
 
   async closeSession(): Promise<void> {
-    await db.query(
+    await this.db.query(
       "UPDATE session SET status = 'closed', updated_at = time::now() WHERE session_id = $id",
       { id: this.sessionId },
     );

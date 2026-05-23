@@ -96,9 +96,9 @@ A generic TypeScript binary that:
 4. Clones git repos
 5. Connects to specified MCP servers
 6. Subscribes to SurrealDB LIVE queries for updates
-7. Starts serving via Claude Agent SDK `query()`
+7. Starts serving via Pi SDK `session.prompt()`
 
-The agent runner has **zero domain knowledge**. It is identical across all deployments.
+The agent runner has **zero domain knowledge**. It is identical across all deployments. Implemented in `examples/agent-runner/` using the Pi Coding Agent SDK.
 
 ### 5. Third-Party MCP Servers (External Connectors)
 

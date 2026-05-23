@@ -1,41 +1,65 @@
-import { Router, Request, Response } from "express";
+/**
+ * catalog.ts — Catalog endpoint (Hono + SurrealDB v2).
+ */
+
+import { Hono } from "hono";
 import { getDb } from "./db.js";
 
-const router = Router();
+interface CatalogRow {
+  agent_type: string;
+  version: string;
+  repos?: { url: string; name?: string; branch?: string }[];
+  mcp_servers?: { name: string; command: string; args?: string[] }[];
+}
 
-router.get("/catalog/:agentType", async (req: Request, res: Response) => {
-  const { agentType } = req.params;
+interface SkillRow {
+  uri: string;
+  version: string;
+  hash: string;
+}
+
+interface ResourceRow {
+  uri: string;
+  version: string;
+  hash: string;
+}
+
+export const catalogRoute = new Hono();
+
+catalogRoute.get("/catalog/:agentType", async (c) => {
+  const agentType = c.req.param("agentType");
   const db = getDb();
 
-  const catalogs = await db.query(
-    "SELECT * FROM catalog WHERE agent_type = $agent_type LIMIT 1",
-    { agent_type: agentType }
-  );
+  const [catalogRows] = await db
+    .query("SELECT * FROM catalog WHERE agent_type = $agent_type LIMIT 1", {
+      agent_type: agentType,
+    })
+    .collect<[CatalogRow[]]>();
 
-  const catalog = catalogs[0]?.[0];
+  const catalog = catalogRows?.[0];
   if (!catalog) {
-    res.status(404).json({ error: `Unknown agent type: ${agentType}` });
-    return;
+    return c.json({ error: `Unknown agent type: ${agentType}` }, 404);
   }
 
-  const skills = await db.query(
-    "SELECT uri, version, hash FROM skill WHERE agent_type = $agent_type",
-    { agent_type: agentType }
-  );
+  const [skillRows] = await db
+    .query("SELECT uri, version, hash FROM skill WHERE agent_type = $agent_type", {
+      agent_type: agentType,
+    })
+    .collect<[SkillRow[]]>();
 
-  const resources = await db.query(
-    "SELECT uri, version, hash FROM resource WHERE agent_type = $agent_type",
-    { agent_type: agentType }
-  );
+  const [resourceRows] = await db
+    .query(
+      "SELECT uri, version, hash FROM resource WHERE agent_type = $agent_type",
+      { agent_type: agentType },
+    )
+    .collect<[ResourceRow[]]>();
 
-  res.json({
+  return c.json({
     agentType,
     version: catalog.version,
-    skills: skills[0] || [],
-    resources: resources[0] || [],
+    skills: skillRows || [],
+    resources: resourceRows || [],
     repos: catalog.repos || [],
     mcpServers: catalog.mcp_servers || [],
   });
 });
-
-export default router;

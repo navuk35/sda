@@ -180,13 +180,13 @@ Kill an agent, spin a new one with the same `--type` parameter -- identical agen
 
 | Layer | Technology |
 |-------|-----------|
-| Agent Runtime | Claude Agent SDK (TypeScript) |
-| Backend API | Spring Boot / Express / any REST framework |
+| Agent Runtime | Pi Coding Agent SDK (@mariozechner/pi-coding-agent) |
+| Backend API | Hono / Spring Boot / any REST framework |
 | Storage | SurrealDB (multi-model DB with LIVE queries) |
 | Session Store | SurrealDB (conversation streaming + recovery) |
 | Authentication | API key per subscription, middleware-validated |
 | Guardrails | Guardrails AI server (input/output validation) |
-| Observability | OpenTelemetry (built into Agent SDK, zero code) |
+| Observability | OpenTelemetry (env vars, zero code) |
 | Real-time Updates | SurrealDB LIVE queries (no custom WebSocket) |
 | Admin Portal | Web UI for skill/resource management |
 | Third-party MCPs | Jira, Slack, GitHub, SigNoz (plug-and-play) |
@@ -197,37 +197,101 @@ Kill an agent, spin a new one with the same `--type` parameter -- identical agen
 
 ```
 sda/
-├── README.md                          # This file
+├── README.md
+├── db/
+│   ├── schema.surql              # Database schema (DEFINE TABLE)
+│   └── seed.surql                # Sample data (pricing-bot)
 ├── docs/
-│   ├── architecture.md                # Detailed architecture docs
-│   ├── boot-sequence.md               # Agent boot lifecycle
-│   ├── skill-vs-resource.md           # How to classify content
-│   ├── hot-reload.md                  # Update notification flow
-│   ├── session-streaming.md           # Stateful sessions via SurrealDB
-│   ├── authentication.md             # API key security & subscription
-│   ├── guardrails.md                 # Input/output safety with Guardrails AI
-│   └── observability.md              # OpenTelemetry tracing (zero code)
+│   ├── architecture.md           # Detailed architecture
+│   ├── boot-sequence.md          # Agent boot lifecycle
+│   ├── skill-vs-resource.md      # Content classification guide
+│   ├── hot-reload.md             # SurrealDB LIVE query updates
+│   ├── session-streaming.md      # Stateful sessions via SurrealDB
+│   ├── authentication.md         # API key security & middleware
+│   ├── guardrails.md             # Input/output safety (Guardrails AI)
+│   ├── observability.md          # OpenTelemetry tracing
+│   └── getting-started.md        # Setup & run guide
 ├── examples/
-│   ├── backend-api/                   # Reference backend implementation
+│   ├── backend-api/              # Hono backend + SurrealDB
 │   │   ├── src/
-│   │   │   ├── index.ts               # Express server entry point
-│   │   │   ├── catalog.ts             # GET /catalog/{agentType}
-│   │   │   ├── content.ts             # GET /content/{uri}
-│   │   │   ├── db.ts                  # SurrealDB connection + queries
-│   │   │   └── notifications.ts       # LIVE query subscription handler
+│   │   │   ├── index.ts          # Hono server entry point
+│   │   │   ├── catalog.ts        # GET /catalog/:agentType
+│   │   │   ├── content.ts        # GET /content/:uri
+│   │   │   ├── auth.ts           # API key validation + middleware
+│   │   │   ├── db.ts             # SurrealDB connection + seed
+│   │   │   ├── notifications.ts  # LIVE query handlers
+│   │   │   └── sda-backend.test.ts  # 16 integration tests
 │   │   └── package.json
-│   └── agent-runner/                  # Reference agent boot script
+│   └── agent-runner/             # Pi SDK agent boot script
 │       ├── src/
-│       │   ├── boot.ts                # Boot sequence implementation
-│       │   ├── sync.ts                # File sync + hot reload
-│       │   └── index.ts               # Main entry point
+│       │   ├── index.ts          # HTTP server + agent session
+│       │   ├── boot.ts           # Boot: auth → catalog → files → repos
+│       │   ├── catalog.ts        # Backend API client
+│       │   ├── sync.ts           # SurrealDB LIVE query hot reload
+│       │   └── session.ts        # Session streaming to SurrealDB
 │       └── package.json
 └── LICENSE
 ```
 
+## Quick Start
+
+### Prerequisites
+- Docker (for SurrealDB)
+- Node.js 22+
+- [SurrealDB CLI](https://surrealdb.com/install) (`brew install surrealdb`)
+
+### 1. Start SurrealDB
+```bash
+docker run -d --name surrealdb -p 8000:8000 \
+  surrealdb/surrealdb:latest start --user root --pass root
+```
+
+### 2. Setup Database
+```bash
+surreal import --endpoint http://localhost:8000 --user root --pass root \
+  --namespace sda --database agents db/schema.surql
+
+surreal import --endpoint http://localhost:8000 --user root --pass root \
+  --namespace sda --database agents db/seed.surql
+```
+
+### 3. Run Backend
+```bash
+cd examples/backend-api
+npm install
+npm run dev
+# API running on http://localhost:3000
+```
+
+### 4. Run Tests
+```bash
+cd examples/backend-api
+npm test
+# 16 integration tests against real SurrealDB
+```
+
+### 5. Run Agent Runner
+```bash
+cd examples/agent-runner
+npm install
+export AGENT_TYPE=pricing-bot
+export SDA_API_KEY=sk_test_sda_integration_2026
+export BACKEND_URL=http://localhost:3000
+npm run dev
+# Agent listening on http://localhost:3001
+```
+
 ## Status
 
-This is an early-stage architecture proposal. Contributions, feedback, and corrections are welcome.
+Active development. Backend API implemented and tested (Hono + SurrealDB v3). Agent runner implemented (Pi SDK). Working toward v0.2 with Admin Portal and Guardrails integration.
+
+## Author
+
+**Navin M** — Principal Architect with 14+ years in distributed systems (Java/Spring Boot), exploring AI agent architecture patterns.
+
+## License
+
+MIT
 
 ## Author
 

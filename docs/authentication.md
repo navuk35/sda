@@ -65,7 +65,9 @@ STEP 4: If key is invalid or expired
         Does NOT start serving
 ```
 
-## Backend Middleware
+## Backend Middleware (Hono)
+
+Implemented in `examples/backend-api/src/auth.ts`.
 
 ```typescript
 // middleware/auth.ts

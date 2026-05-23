@@ -1,21 +1,23 @@
 {
   "name": "sda-backend-api",
-  "version": "0.1.0",
-  "description": "Reference backend API for Server Driven Agents",
+  "version": "0.2.0",
+  "description": "Reference backend API for Server Driven Agents — Hono",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
+    "test": "vitest run src/sda-backend.test.ts",
     "build": "tsc",
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "express": "^5.0.0",
-    "surrealdb": "^1.0.0"
+    "@hono/node-server": "^1.0.0",
+    "hono": "^4.0.0",
+    "surrealdb": "^2.0.3",
+    "vitest": "^4.1.7"
   },
   "devDependencies": {
-    "typescript": "^5.7.0",
+    "@types/node": "^22.0.0",
     "tsx": "^4.19.0",
-    "@types/express": "^5.0.0",
-    "@types/node": "^22.0.0"
+    "typescript": "^5.7.0"
   }
 }

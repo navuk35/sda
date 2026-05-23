@@ -1,28 +1,44 @@
-import express from "express";
-import catalogRouter from "./catalog.js";
-import contentRouter from "./content.js";
+/**
+ * index.ts — SDA Backend API entry point (Hono).
+ *
+ * Routes:
+ *   GET  /health
+ *   GET  /api/v1/auth/validate
+ *   GET  /api/v1/catalog/:agentType
+ *   GET  /api/v1/content/:uri
+ */
+
+import { Hono } from "hono";
+import { serve } from "@hono/node-server";
 import { connectDb, seedData } from "./db.js";
 import { setupLiveQueries } from "./notifications.js";
+import { catalogRoute } from "./catalog.js";
+import { contentRoute } from "./content.js";
+import { authRoute, authMiddleware } from "./auth.js";
 
-const app = express();
-app.use(express.json());
+const app = new Hono();
 
-app.use("/api/v1", catalogRouter);
-app.use("/api/v1", contentRouter);
+// Health check (no auth required)
+app.get("/health", (c) => c.json({ status: "ok" }));
 
-app.get("/health", (_req, res) => {
-  res.json({ status: "ok" });
-});
+// Auth route (no auth required)
+app.route("/api/v1/auth", authRoute);
 
-const PORT = process.env.PORT || 3000;
+// Protected routes
+app.use("/api/v1/catalog/*", authMiddleware);
+app.use("/api/v1/content/*", authMiddleware);
+app.route("/api/v1", catalogRoute);
+app.route("/api/v1", contentRoute);
+
+const PORT = parseInt(process.env.PORT || "3000", 10);
 
 async function start() {
   await connectDb();
   await seedData();
   await setupLiveQueries();
 
-  app.listen(PORT, () => {
-    console.log(`SDA Backend API running on http://localhost:${PORT}`);
+  serve({ fetch: app.fetch, port: PORT }, (info) => {
+    console.log(`SDA Backend API (Hono) running on http://localhost:${info.port}`);
   });
 }
 

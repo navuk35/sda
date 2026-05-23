@@ -48,12 +48,13 @@ STEP 7: Subscribe to updates via SurrealDB LIVE queries
           - DELETE         -> delete file from filesystem
 
 STEP 8: Connect session store
-        Connect to SurrealDB for session streaming
+        Connect to SurrealDB for session streaming via Pi SDK SessionManager
         Load existing session if user reconnects (SELECT * FROM turn WHERE session = {id})
         Stream all new conversation turns to SurrealDB in real-time
 
 STEP 9: Agent is ready
-        Start serving via Claude Agent SDK query()
+        Start serving via Pi SDK `session.prompt()`
+        Accepts queries via HTTP POST /query endpoint
 ```
 
 ## Filesystem After Boot
@@ -90,16 +91,15 @@ STEP 9: Agent is ready
 
 ## Health Check
 
-After boot, the agent should report its loaded configuration:
+After boot, the agent should report its loaded configuration via GET /health:
 
 ```json
 {
   "agentType": "pricing-bot",
   "status": "ready",
-  "skills": ["debug-pricing@v3.0", "analyze-issues@v1.2"],
-  "resources": ["pricing/overview@v1.0", "pricing/service-charge@v2.1"],
-  "repos": ["pricing-engine@main#abc123"],
-  "mcpServers": ["jira", "signoz"],
+  "skills": ["skills://pricing-bot/debug-pricing@v1.0", "skills://pricing-bot/analyze-issues@v1.0"],
+  "resources": ["docs://pricing/overview@v1.0", "docs://pricing/service-charge@v1.0", "docs://pricing/commission@v1.0"],
+  "repos": ["pricing-engine@main"],
   "bootTime": "4.2s"
 }
 ```

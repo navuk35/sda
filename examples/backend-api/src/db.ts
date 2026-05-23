@@ -1,4 +1,8 @@
-import Surreal from "surrealdb";
+/**
+ * db.ts — SurrealDB connection and seed data (surrealdb.js v2).
+ */
+
+import { Surreal, Table } from "surrealdb";
 
 let db: Surreal;
 
@@ -19,10 +23,12 @@ export function getDb(): Surreal {
 }
 
 export async function seedData() {
-  const existing = await db.select("catalog");
-  if (Array.isArray(existing) && existing.length > 0) return;
+  // Check if data exists using query builder
+  const existing = await db.select<{ id: string }>(new Table("catalog"));
+  if (existing.length > 0) return;
 
-  await db.create("skill", {
+  // Insert skills
+  await db.create(new Table("skill")).content({
     uri: "skills://pricing-bot/debug-pricing",
     version: "1.0",
     hash: "a1b2c3",
@@ -38,7 +44,7 @@ export async function seedData() {
 7. If confidence is below 80%, escalate to human`,
   });
 
-  await db.create("skill", {
+  await db.create(new Table("skill")).content({
     uri: "skills://pricing-bot/analyze-issues",
     version: "1.0",
     hash: "d4e5f6",
@@ -53,7 +59,8 @@ export async function seedData() {
 6. Provide analysis with: Summary, Root Cause, Affected Files, Impact, Suggested Fix, Confidence Level`,
   });
 
-  await db.create("resource", {
+  // Insert resources
+  await db.create(new Table("resource")).content({
     uri: "docs://pricing/overview",
     version: "1.0",
     hash: "g7h8i9",
@@ -71,7 +78,7 @@ Policy evaluation order:
 Each policy has: conditions (who/what/when), calculation method (flat/percentage/tiered), and priority (evaluation order).`,
   });
 
-  await db.create("resource", {
+  await db.create(new Table("resource")).content({
     uri: "docs://pricing/service-charge",
     version: "1.0",
     hash: "j0k1l2",
@@ -86,7 +93,7 @@ Types:
 - Tiered: different rates based on amount ranges`,
   });
 
-  await db.create("resource", {
+  await db.create(new Table("resource")).content({
     uri: "docs://pricing/commission",
     version: "1.0",
     hash: "m3n4o5",
@@ -101,7 +108,8 @@ Defines earnings for agents/merchants per transaction.
 - Clawback: reversed if transaction is disputed within 30 days`,
   });
 
-  await db.create("catalog", {
+  // Insert catalog
+  await db.create(new Table("catalog")).content({
     agent_type: "pricing-bot",
     version: "1.0",
     repos: [

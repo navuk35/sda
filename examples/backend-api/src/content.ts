@@ -1,33 +1,42 @@
-import { Router, Request, Response } from "express";
+/**
+ * content.ts — Content endpoint (Hono + SurrealDB v2).
+ */
+
+import { Hono } from "hono";
 import { getDb } from "./db.js";
 
-const router = Router();
+interface ContentRow {
+  uri: string;
+  version: string;
+  content: string;
+}
 
-router.get("/content/:uri", async (req: Request, res: Response) => {
-  const uri = decodeURIComponent(req.params.uri);
+export const contentRoute = new Hono();
+
+contentRoute.get("/content/:uri", async (c) => {
+  const uri = decodeURIComponent(c.req.param("uri"));
   const db = getDb();
 
-  const skills = await db.query(
-    "SELECT uri, version, content FROM skill WHERE uri = $uri LIMIT 1",
-    { uri }
-  );
+  const [skillRows] = await db
+    .query("SELECT uri, version, content FROM skill WHERE uri = $uri LIMIT 1", {
+      uri,
+    })
+    .collect<[ContentRow[]]>();
 
-  if (skills[0]?.[0]) {
-    res.json(skills[0][0]);
-    return;
+  if (skillRows?.[0]) {
+    return c.json(skillRows[0]);
   }
 
-  const resources = await db.query(
-    "SELECT uri, version, content FROM resource WHERE uri = $uri LIMIT 1",
-    { uri }
-  );
+  const [resourceRows] = await db
+    .query(
+      "SELECT uri, version, content FROM resource WHERE uri = $uri LIMIT 1",
+      { uri },
+    )
+    .collect<[ContentRow[]]>();
 
-  if (resources[0]?.[0]) {
-    res.json(resources[0][0]);
-    return;
+  if (resourceRows?.[0]) {
+    return c.json(resourceRows[0]);
   }
 
-  res.status(404).json({ error: `Content not found: ${uri}` });
+  return c.json({ error: `Content not found: ${uri}` }, 404);
 });
-
-export default router;

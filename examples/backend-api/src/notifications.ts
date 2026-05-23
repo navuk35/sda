@@ -1,15 +1,34 @@
+/**
+ * notifications.ts — SurrealDB LIVE query setup (surrealdb.js v2).
+ */
+
 import { getDb } from "./db.js";
+import { Table } from "surrealdb";
 
 export async function setupLiveQueries() {
   const db = getDb();
 
-  await db.live("skill", (action, result) => {
-    console.log(`LIVE [skill] ${action}: ${result.uri} v${result.version}`);
-  });
+  // v2 live queries use async iterators
+  const skillTable = new Table("skill");
+  const resourceTable = new Table("resource");
 
-  await db.live("resource", (action, result) => {
-    console.log(`LIVE [resource] ${action}: ${result.uri} v${result.version}`);
-  });
+  const skillLive = await db.live(skillTable);
+  const resourceLive = await db.live(resourceTable);
+
+  // Start listening in background
+  (async () => {
+    for await (const { action, value } of skillLive) {
+      const v = value as { uri?: string; version?: string };
+      console.log(`LIVE [skill] ${action}: ${v.uri} v${v.version}`);
+    }
+  })();
+
+  (async () => {
+    for await (const { action, value } of resourceLive) {
+      const v = value as { uri?: string; version?: string };
+      console.log(`LIVE [resource] ${action}: ${v.uri} v${v.version}`);
+    }
+  })();
 
   console.log("SurrealDB LIVE queries active for skill and resource tables");
 }
